@@ -1,0 +1,7 @@
+{
+  "go.gopath": "${env:GOPATH}",
+  "go.buildOnSave": "off",
+  "go.lintOnSave": "off",
+  "go.formatTool": "gofmt",
+  "go.installDependenciesWhenBuilding": false
+}
