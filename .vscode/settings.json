@@ -1,7 +1,14 @@
 {
-  "go.gopath": "${env:GOPATH}",
-  "go.buildOnSave": "off",
-  "go.lintOnSave": "off",
-  "go.formatTool": "gofmt",
-  "go.installDependenciesWhenBuilding": false
+	"go.gopath": "${env:GOPATH}",
+	"go.buildOnSave": "off",
+	"go.lintOnSave": "workspace",
+	"go.formatTool": "goimports",
+	"go.installDependenciesWhenBuilding": true,
+	"[go]": {
+		"editor.insertSpaces": false,
+		"editor.formatOnSave": true,
+		"editor.codeActionsOnSave": {
+			"source.organizeImports": true
+		}
+	}
 }
