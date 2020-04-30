@@ -1,0 +1,110 @@
+openapi: 3.0.0
+info:
+  title: Data API
+  description: |
+    # Data API
+    Data API specification.
+  version: 0.0.0
+servers:
+  - url: https://api.hiroshifujita.com/v1
+    description: production url
+tags:
+  - name: Training
+    description: Training record data.
+x-tagGroups:
+  - name: Recorder
+    tags:
+      - Training
+paths:
+  /recorder/training:
+    get:
+      summary: Retrieve Training Record List
+      description: |
+        Return record data list of trainning.
+      tags:
+        - Training
+      responses:
+        "200":
+          $ref: "#/components/responses/TrainingList"
+    post:
+      summary: Create Training Record
+      tags:
+        - Training
+      responses:
+        "201":
+          $ref: "#/components/responses/Created"
+    put:
+      summary: Update Training Record
+      tags:
+        - Training
+      responses:
+        "200":
+          $ref: "#/components/responses/Updated"
+    delete:
+      summary: Remove Training Record
+      tags:
+        - Training
+      responses:
+        "200":
+          $ref: "#/components/responses/Deleted"
+
+components:
+  responses:
+    Created:
+      description: Created
+      content:
+        application/json:
+          schema:
+            type: object
+    Updated:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+    Deleted:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+    TrainingList:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            description: |
+              Training List
+            properties:
+              records:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Training"
+  schemas:
+    Training:
+      type: object
+      properties:
+        type:
+          type: string
+          description: |
+            training type
+          enum:
+            - "pushup"
+          example: "pushup"
+        date:
+          type: string
+          description: |
+            training date
+          format: date-time
+          example: "2020-01-01T00:00:00+09:00"
+        count:
+          type: integer
+          description: |
+            training count
+          format: int64
+          example: 40
+      required:
+        - type
+        - date
+        - count
