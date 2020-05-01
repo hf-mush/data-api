@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -44,7 +45,11 @@ func RunServer(port int64) error {
 
 func customLogger(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		path := getLogFilePath()
+		path, err := getLogFilePath()
+		if err != nil {
+			return err
+		}
+
 		file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
 		if err != nil {
 			panic(err)
@@ -59,6 +64,13 @@ func customLogger(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-func getLogFilePath() string {
-	return os.Getenv("LOG_DIR_PATH") + "/" + time.Now().In(time.FixedZone("Asia/Tokyo", 9*60*60)).Format("20060102") + ".log"
+func getLogFilePath() (string, error) {
+	if _, err := os.Stat(os.Getenv("LOG_DIR_PATH")); os.IsNotExist(err) {
+		err = os.Mkdir(os.Getenv("LOG_DIR_PATH"), 0777)
+		if err != nil {
+			return "", err
+		}
+		log.Println(fmt.Sprintf("%v: [%v] %v", "info", "http", "mkdir with "+os.Getenv("LOG_DIR_PATH")))
+	}
+	return os.Getenv("LOG_DIR_PATH") + "/" + time.Now().In(time.FixedZone("Asia/Tokyo", 9*60*60)).Format("20060102") + ".log", nil
 }
