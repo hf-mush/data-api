@@ -20,6 +20,13 @@ func init() {
 	time.Local = loc
 
 	colog.Register()
+
+	err = loadDotEnv()
+	if err != nil {
+		log.Println("error: [dotenv] load .env failed")
+		gofmtMain()
+		os.Exit(exitCode)
+	}
 }
 
 func main() {
