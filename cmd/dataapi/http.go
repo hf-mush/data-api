@@ -9,6 +9,9 @@ import (
 	"time"
 
 	"github.com/comail/colog"
+	"github.com/hf-mush/data-api/infrastructure/persistance"
+	"github.com/hf-mush/data-api/interfaces/handler"
+	"github.com/hf-mush/data-api/usecases"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 )
@@ -39,6 +42,13 @@ func RunServer(port int64) error {
 		},
 		AllowCredentials: true,
 	}))
+
+	trainingRepository := persistance.NewTrainingPersistance()
+	trainingUseCase := usecases.NewTrainingUseCase(trainingRepository)
+	trainingHander := handler.NewTrainingHandler(trainingUseCase)
+
+	g := e.Group("/v1", customLogger)
+	g.GET("/recorder/training", trainingHander.RetrieveList)
 
 	return e.Start(":" + strconv.FormatInt(port, 10))
 }
