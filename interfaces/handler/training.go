@@ -24,7 +24,9 @@ func NewTrainingHandler(tu usecases.TrainingUseCase) TrainingHandler {
 }
 
 // RetrieveTrainingListRequest request struct
-type RetrieveTrainingListRequest struct{}
+type RetrieveTrainingListRequest struct {
+	Kind string `query:"kind"`
+}
 
 // RetrieveTrainingListResponse response struct
 type RetrieveTrainingListResponse struct {
@@ -39,14 +41,17 @@ func (th trainingHandler) RetrieveList(c echo.Context) error {
 		return response.ErrorResponse(c, "INVALID_PARAMETER", err.Error())
 	}
 
-	trainings, err := th.trainingUseCase.GetByKind("pushup")
+	if request.Kind == "" {
+		trainings, err := th.trainingUseCase.GetAll()
+		if err != nil {
+			return response.ErrorResponse(c, "NOT_FOUND", err.Error())
+		}
+		return c.JSON(200, &RetrieveTrainingListResponse{Records: trainings})
+	}
+
+	trainings, err := th.trainingUseCase.GetByKind(request.Kind)
 	if err != nil {
 		return response.ErrorResponse(c, "NOT_FOUND", err.Error())
 	}
-
-	response := &RetrieveTrainingListResponse{
-		Records: trainings,
-	}
-
-	return c.JSON(200, response)
+	return c.JSON(200, &RetrieveTrainingListResponse{Records: trainings})
 }

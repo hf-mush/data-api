@@ -7,6 +7,7 @@ import (
 
 // TrainingUseCase usecase of training
 type TrainingUseCase interface {
+	GetAll() ([]*model.Training, error)
 	GetByKind(kind string) ([]*model.Training, error)
 }
 
@@ -19,6 +20,14 @@ func NewTrainingUseCase(tr repository.TrainingRepository) TrainingUseCase {
 	return &trainingUseCase{
 		repository: tr,
 	}
+}
+
+func (tu trainingUseCase) GetAll() ([]*model.Training, error) {
+	trainingList, err := tu.repository.GetTrainingAll()
+	if err != nil {
+		return nil, err
+	}
+	return trainingList, nil
 }
 
 func (tu trainingUseCase) GetByKind(kind string) ([]*model.Training, error) {
