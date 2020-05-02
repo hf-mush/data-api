@@ -23,6 +23,15 @@ paths:
         Return record data list of trainning.
       tags:
         - Training
+      parameters:
+        - in: query
+          name: kind
+          schema:
+            type: string
+            enum:
+              - "pushup"
+              - "squat"
+          description: training kind tag string
       responses:
         "200":
           $ref: "#/components/responses/TrainingList"
@@ -30,9 +39,15 @@ paths:
       summary: Create Training Record
       tags:
         - Training
+      requestBody:
+        description: create training log info
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Training"
       responses:
         "201":
-          $ref: "#/components/responses/Created"
+          description: Created
     put:
       summary: Update Training Record
       tags:
@@ -85,12 +100,13 @@ components:
     Training:
       type: object
       properties:
-        type:
+        kind:
           type: string
           description: |
-            training type
+            training kind
           enum:
             - "pushup"
+            - "squat"
           example: "pushup"
         date:
           type: string
@@ -105,6 +121,6 @@ components:
           format: int64
           example: 40
       required:
-        - type
+        - kind
         - date
         - count
