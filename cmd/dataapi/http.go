@@ -45,10 +45,11 @@ func RunServer(port int64) error {
 
 	trainingRepository := persistance.NewTrainingPersistance()
 	trainingUseCase := usecases.NewTrainingUseCase(trainingRepository)
-	trainingHander := handler.NewTrainingHandler(trainingUseCase)
+	trainingHandler := handler.NewTrainingHandler(trainingUseCase)
 
 	g := e.Group("/v1", customLogger)
-	g.GET("/recorder/training", trainingHander.RetrieveList)
+	g.GET("/recorder/training", trainingHandler.RetrieveList)
+	g.POST("/recorder/training", trainingHandler.CreateTrainingLog)
 
 	return e.Start(":" + strconv.FormatInt(port, 10))
 }

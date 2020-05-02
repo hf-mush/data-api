@@ -74,3 +74,40 @@ func aggregateTrainingList(rows *sql.Rows) ([]*model.Training, error) {
 
 	return trainings, nil
 }
+
+func (tp trainingPersistance) GetTrainingKindByKindTag(kind string) (*model.TrainingKind, error) {
+	conn := GetConn()
+
+	stmt, err := conn.Prepare("SELECT * FROM training_kinds WHERE tag = ?")
+	if err != nil {
+		return nil, err
+	}
+
+	var trainingKindID int64
+	var tag string
+	var name string
+	if err := stmt.QueryRow(kind).Scan(&trainingKindID, &tag, &name); err != nil {
+		return nil, err
+	}
+
+	return &model.TrainingKind{
+		TrainingKindID: trainingKindID,
+		Tag:            tag,
+		Name:           name,
+	}, nil
+}
+
+func (tp trainingPersistance) InsertTrainingLog(trainingKindID int64, date string, count int) error {
+	conn := GetConn()
+	stmt, err := conn.Prepare("INSERT INTO training_logs (training_kind_id, date, count) VALUES (?, ?, ?)")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(trainingKindID, date, count)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

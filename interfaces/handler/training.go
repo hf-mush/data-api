@@ -10,6 +10,7 @@ import (
 // TrainingHandler training handler
 type TrainingHandler interface {
 	RetrieveList(c echo.Context) error
+	CreateTrainingLog(c echo.Context) error
 }
 
 type trainingHandler struct {
@@ -54,4 +55,35 @@ func (th trainingHandler) RetrieveList(c echo.Context) error {
 		return response.ErrorResponse(c, "NOT_FOUND", err.Error())
 	}
 	return c.JSON(200, &RetrieveTrainingListResponse{Records: trainings})
+}
+
+// CreateTrainingLogRequest request struct
+type CreateTrainingLogRequest struct {
+	Kind  string `json:"kind"`
+	Count int    `json:"count"`
+	Date  string `json:"date"`
+}
+
+// RetrieveTrainingList return training list
+func (th trainingHandler) CreateTrainingLog(c echo.Context) error {
+
+	request := &CreateTrainingLogRequest{}
+	if err := c.Bind(request); err != nil {
+		return response.ErrorResponse(c, "INVALID_PARAMETER", err.Error())
+	}
+
+	kind := request.Kind
+	trainingKind, err := th.trainingUseCase.GetKindByKindTag(kind)
+	if err != nil {
+		return response.ErrorResponse(c, "DB_NOT_FOUND", err.Error())
+	}
+
+	date := request.Date
+	count := request.Count
+	err = th.trainingUseCase.CreateLog(trainingKind.TrainingKindID, date, count)
+	if err != nil {
+		return response.ErrorResponse(c, "DB_REQUEST_ERROR", err.Error())
+	}
+
+	return c.NoContent(201)
 }
