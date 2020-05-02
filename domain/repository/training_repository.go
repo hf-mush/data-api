@@ -6,4 +6,6 @@ import "github.com/hf-mush/data-api/domain/model"
 type TrainingRepository interface {
 	GetTrainingAll() ([]*model.Training, error)
 	GetTrainingByKind(kind string) ([]*model.Training, error)
+	GetTrainingKindByKindTag(tag string) (*model.TrainingKind, error)
+	InsertTrainingLog(trainingKindID int64, date string, count int) error
 }
