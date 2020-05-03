@@ -1,6 +1,6 @@
 package repository
 
-import "github.com/hf-mush/data-api/domain/model"
+import "github.com/shuufujita/data-api/domain/model"
 
 // TrainingRepository db.training repository
 type TrainingRepository interface {

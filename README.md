@@ -11,13 +11,13 @@ A repository for learning domain-driven design and golang development.
 
 ```
 # Get packages.
-go get github.com/hf-mush/data-api/cmd/dataapi
+go get github.com/shuufujita/data-api/cmd/dataapi
 
 # Install command.
-go install github.com/hf-mush/data-api/cmd/dataapi
+go install github.com/shuufujita/data-api/cmd/dataapi
 
 # Install vendor packages.
-cd src/github.com/hf-mush/data-api && dep ensure
+cd src/github.com/shuufujita/data-api && dep ensure
 ```
 
 ## Usage

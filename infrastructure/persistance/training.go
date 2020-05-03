@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/hf-mush/data-api/domain/model"
-	"github.com/hf-mush/data-api/domain/repository"
+	"github.com/shuufujita/data-api/domain/model"
+	"github.com/shuufujita/data-api/domain/repository"
 )
 
 type trainingPersistance struct{}
