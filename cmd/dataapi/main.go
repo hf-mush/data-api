@@ -10,7 +10,7 @@ import (
 
 	"github.com/comail/colog"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/hf-mush/data-api/infrastructure/persistance"
+	"github.com/shuufujita/data-api/infrastructure/persistance"
 )
 
 var exitCode = 0

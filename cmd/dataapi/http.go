@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/comail/colog"
-	"github.com/hf-mush/data-api/infrastructure/persistance"
-	"github.com/hf-mush/data-api/interfaces/handler"
-	"github.com/hf-mush/data-api/usecases"
+	"github.com/shuufujita/data-api/infrastructure/persistance"
+	"github.com/shuufujita/data-api/interfaces/handler"
+	"github.com/shuufujita/data-api/usecases"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 )

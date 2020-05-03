@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"github.com/hf-mush/data-api/domain/model"
-	"github.com/hf-mush/data-api/interfaces/response"
-	"github.com/hf-mush/data-api/usecases"
+	"github.com/shuufujita/data-api/domain/model"
+	"github.com/shuufujita/data-api/interfaces/response"
+	"github.com/shuufujita/data-api/usecases"
 	"github.com/labstack/echo"
 )
 
