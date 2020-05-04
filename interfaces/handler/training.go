@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"encoding/json"
+
 	"github.com/labstack/echo"
 	"github.com/shuufujita/data-api/domain/model"
 	"github.com/shuufujita/data-api/interfaces/response"
@@ -11,6 +13,7 @@ import (
 type TrainingHandler interface {
 	RetrieveLogs(c echo.Context) error
 	CreateLog(c echo.Context) error
+	UpdateLog(c echo.Context) error
 }
 
 type trainingHandler struct {
@@ -34,7 +37,6 @@ type RetrieveLogsResponse struct {
 	Records []*model.Training `json:"records"`
 }
 
-// RetrieveTrainingList return training list
 func (th trainingHandler) RetrieveLogs(c echo.Context) error {
 
 	request := &RetrieveLogsRequest{}
@@ -64,7 +66,6 @@ type CreateLogRequest struct {
 	Date  string `json:"date"`
 }
 
-// RetrieveTrainingList return training list
 func (th trainingHandler) CreateLog(c echo.Context) error {
 
 	request := &CreateLogRequest{}
@@ -86,4 +87,36 @@ func (th trainingHandler) CreateLog(c echo.Context) error {
 	}
 
 	return c.NoContent(201)
+}
+
+// UpdateLogRequest request struct
+type UpdateLogRequest struct {
+	ID    int64  `json:"id"`
+	Kind  string `json:"kind"`
+	Count int    `json:"count"`
+	Date  string `json:"date"`
+}
+
+func (th trainingHandler) UpdateLog(c echo.Context) error {
+	request := &UpdateLogRequest{}
+	if err := c.Bind(request); err != nil {
+		return response.ErrorResponse(c, "INVALID_PARAMETER", err.Error())
+	}
+
+	kind := request.Kind
+	trainingKind, err := th.trainingUseCase.GetKindByKindTag(kind)
+	if err != nil {
+		return response.ErrorResponse(c, "DB_NOT_FOUND", err.Error())
+	}
+
+	id := request.ID
+	date := request.Date
+	count := request.Count
+	err = th.trainingUseCase.UpdateLog(id, trainingKind.TrainingKindID, date, count)
+	if err != nil {
+		return response.ErrorResponse(c, "DB_REQUEST_ERROR", err.Error())
+	}
+
+	emptyJSON, _ := json.Marshal(map[string]interface{}{})
+	return c.JSONBlob(200, emptyJSON)
 }
