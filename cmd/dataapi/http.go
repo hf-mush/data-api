@@ -9,11 +9,11 @@ import (
 	"time"
 
 	"github.com/comail/colog"
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"github.com/shuufujita/data-api/infrastructure/persistance"
 	"github.com/shuufujita/data-api/interfaces/handler"
 	"github.com/shuufujita/data-api/usecases"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
 )
 
 // RunServer launch and run server.
@@ -50,6 +50,7 @@ func RunServer(port int64) error {
 	g := e.Group("/v1", customLogger)
 	g.GET("/recorder/training", trainingHandler.RetrieveLogs)
 	g.POST("/recorder/training", trainingHandler.CreateLog)
+	g.PUT("/recorder/training", trainingHandler.UpdateLog)
 
 	return e.Start(":" + strconv.FormatInt(port, 10))
 }

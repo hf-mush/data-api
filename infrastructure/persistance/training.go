@@ -17,7 +17,7 @@ func NewTrainingPersistance() repository.TrainingRepository {
 
 func (tp trainingPersistance) GetTrainingLogAll() ([]*model.Training, error) {
 	conn := GetConn()
-	stmt, err := conn.Prepare(fmt.Sprintf("SELECT tl.date, tk.tag, tl.count FROM training_logs AS tl INNER JOIN training_kinds AS tk ON tl.training_kind_id = tk.training_kind_id"))
+	stmt, err := conn.Prepare(fmt.Sprintf("SELECT tl.training_log_id, tl.date, tk.tag, tl.count FROM training_logs AS tl INNER JOIN training_kinds AS tk ON tl.training_kind_id = tk.training_kind_id"))
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +33,7 @@ func (tp trainingPersistance) GetTrainingLogAll() ([]*model.Training, error) {
 
 func (tp trainingPersistance) GetTrainingLogByKind(kind string) ([]*model.Training, error) {
 	conn := GetConn()
-	stmt, err := conn.Prepare(fmt.Sprintf("SELECT tl.date, tk.tag, tl.count FROM training_logs AS tl INNER JOIN training_kinds AS tk ON tl.training_kind_id = tk.training_kind_id WHERE tk.tag = ?"))
+	stmt, err := conn.Prepare(fmt.Sprintf("SELECT tl.training_log_id, tl.date, tk.tag, tl.count FROM training_logs AS tl INNER JOIN training_kinds AS tk ON tl.training_kind_id = tk.training_kind_id WHERE tk.tag = ?"))
 	if err != nil {
 		return nil, err
 	}
@@ -50,16 +50,18 @@ func (tp trainingPersistance) GetTrainingLogByKind(kind string) ([]*model.Traini
 func aggregateTrainingLogs(rows *sql.Rows) ([]*model.Training, error) {
 	trainings := []*model.Training{}
 
+	var trainingLogID int64
 	var date string
 	var tag string
 	var count int
 
 	for rows.Next() {
-		err := rows.Scan(&date, &tag, &count)
+		err := rows.Scan(&trainingLogID, &date, &tag, &count)
 		if err != nil {
 			panic(err)
 		}
 		trainging := &model.Training{
+			ID:    trainingLogID,
 			Date:  date,
 			Count: count,
 			Kind:  tag,
@@ -105,6 +107,21 @@ func (tp trainingPersistance) InsertTrainingLog(trainingKindID int64, date strin
 	}
 
 	_, err = stmt.Exec(trainingKindID, date, count)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (tp trainingPersistance) UpdateTrainingLog(trainingLogID, trainingKindID int64, date string, count int) error {
+	conn := GetConn()
+	stmt, err := conn.Prepare("UPDATE training_logs SET training_kind_id = ?, date = ?, count = ? WHERE training_log_id = ?")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(trainingKindID, date, count, trainingLogID)
 	if err != nil {
 		return err
 	}

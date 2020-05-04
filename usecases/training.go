@@ -11,6 +11,7 @@ type TrainingUseCase interface {
 	GetLogByKind(kind string) ([]*model.Training, error)
 	GetKindByKindTag(kind string) (*model.TrainingKind, error)
 	CreateLog(trainingKindID int64, tag string, count int) error
+	UpdateLog(trainingLogID, trainingKindID int64, tag string, count int) error
 }
 
 type trainingUseCase struct {
@@ -50,6 +51,14 @@ func (tu trainingUseCase) GetKindByKindTag(kind string) (*model.TrainingKind, er
 
 func (tu trainingUseCase) CreateLog(trainingKindID int64, tag string, count int) error {
 	err := tu.repository.InsertTrainingLog(trainingKindID, tag, count)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (tu trainingUseCase) UpdateLog(trainingLogID, trainingKindID int64, tag string, count int) error {
+	err := tu.repository.UpdateTrainingLog(trainingLogID, trainingKindID, tag, count)
 	if err != nil {
 		return err
 	}
