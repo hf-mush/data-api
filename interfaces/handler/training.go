@@ -39,24 +39,16 @@ type RetrieveLogsResponse struct {
 }
 
 func (th trainingHandler) RetrieveLogs(c echo.Context) error {
-
 	request := &RetrieveLogsRequest{}
 	if err := c.Bind(request); err != nil {
 		return response.ErrorResponse(c, "INVALID_PARAMETER", err.Error())
 	}
 
-	if request.Kind == "" {
-		trainings, err := th.trainingUseCase.GetLogAll()
-		if err != nil {
-			return response.ErrorResponse(c, "NOT_FOUND", err.Error())
-		}
-		return c.JSON(200, &RetrieveLogsResponse{Records: trainings})
+	trainings, err := th.trainingUseCase.GetLogs(request.Kind)
+	if err != nil {
+		return response.ErrorResponse(c, "DB_NOT_FOUND", err.Error())
 	}
 
-	trainings, err := th.trainingUseCase.GetLogByKind(request.Kind)
-	if err != nil {
-		return response.ErrorResponse(c, "NOT_FOUND", err.Error())
-	}
 	return c.JSON(200, &RetrieveLogsResponse{Records: trainings})
 }
 
@@ -68,7 +60,6 @@ type CreateLogRequest struct {
 }
 
 func (th trainingHandler) CreateLog(c echo.Context) error {
-
 	request := &CreateLogRequest{}
 	if err := c.Bind(request); err != nil {
 		return response.ErrorResponse(c, "INVALID_PARAMETER", err.Error())
