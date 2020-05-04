@@ -3,6 +3,7 @@ package persistance
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/shuufujita/data-api/domain/model"
 	"github.com/shuufujita/data-api/domain/repository"
@@ -15,7 +16,7 @@ func NewTrainingPersistance() repository.TrainingRepository {
 	return &trainingPersistance{}
 }
 
-func (tp trainingPersistance) GetTrainingLogAll() ([]*model.Training, error) {
+func (tp trainingPersistance) GetTrainingLogAll() ([]*model.TrainingLog, error) {
 	conn := GetConn()
 	stmt, err := conn.Prepare(fmt.Sprintf("SELECT tl.training_log_id, tl.date, tk.tag, tl.count FROM training_logs AS tl INNER JOIN training_kinds AS tk ON tl.training_kind_id = tk.training_kind_id"))
 	if err != nil {
@@ -31,7 +32,7 @@ func (tp trainingPersistance) GetTrainingLogAll() ([]*model.Training, error) {
 	return aggregateTrainingLogs(rows)
 }
 
-func (tp trainingPersistance) GetTrainingLogByKind(kind string) ([]*model.Training, error) {
+func (tp trainingPersistance) GetTrainingLogByKind(kind string) ([]*model.TrainingLog, error) {
 	conn := GetConn()
 	stmt, err := conn.Prepare(fmt.Sprintf("SELECT tl.training_log_id, tl.date, tk.tag, tl.count FROM training_logs AS tl INNER JOIN training_kinds AS tk ON tl.training_kind_id = tk.training_kind_id WHERE tk.tag = ?"))
 	if err != nil {
@@ -47,11 +48,11 @@ func (tp trainingPersistance) GetTrainingLogByKind(kind string) ([]*model.Traini
 	return aggregateTrainingLogs(rows)
 }
 
-func aggregateTrainingLogs(rows *sql.Rows) ([]*model.Training, error) {
-	trainings := []*model.Training{}
+func aggregateTrainingLogs(rows *sql.Rows) ([]*model.TrainingLog, error) {
+	trainings := []*model.TrainingLog{}
 
 	var trainingLogID int64
-	var date string
+	var date time.Time
 	var tag string
 	var count int
 
@@ -60,9 +61,9 @@ func aggregateTrainingLogs(rows *sql.Rows) ([]*model.Training, error) {
 		if err != nil {
 			panic(err)
 		}
-		trainging := &model.Training{
+		trainging := &model.TrainingLog{
 			ID:    trainingLogID,
-			Date:  date,
+			Date:  convertTimeToJstStr(date),
 			Count: count,
 			Kind:  tag,
 		}
