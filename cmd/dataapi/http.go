@@ -51,6 +51,7 @@ func RunServer(port int64) error {
 	g.GET("/recorder/training", trainingHandler.RetrieveLogs)
 	g.POST("/recorder/training", trainingHandler.CreateLog)
 	g.PUT("/recorder/training", trainingHandler.UpdateLog)
+	g.DELETE("/recorder/training", trainingHandler.DeleteLog)
 
 	return e.Start(":" + strconv.FormatInt(port, 10))
 }

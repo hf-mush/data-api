@@ -9,4 +9,5 @@ type TrainingRepository interface {
 	GetTrainingKindByKindTag(tag string) (*model.TrainingKind, error)
 	InsertTrainingLog(trainingKindID int64, date string, count int) error
 	UpdateTrainingLog(trainingLogID, trainingKindID int64, date string, count int) error
+	DeleteTrainingLog(trainingLogID int64) error
 }
