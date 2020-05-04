@@ -15,7 +15,7 @@ func NewTrainingPersistance() repository.TrainingRepository {
 	return &trainingPersistance{}
 }
 
-func (tp trainingPersistance) GetTrainingAll() ([]*model.Training, error) {
+func (tp trainingPersistance) GetTrainingLogAll() ([]*model.Training, error) {
 	conn := GetConn()
 	stmt, err := conn.Prepare(fmt.Sprintf("SELECT tl.date, tk.tag, tl.count FROM training_logs AS tl INNER JOIN training_kinds AS tk ON tl.training_kind_id = tk.training_kind_id"))
 	if err != nil {
@@ -28,10 +28,10 @@ func (tp trainingPersistance) GetTrainingAll() ([]*model.Training, error) {
 		return nil, err
 	}
 
-	return aggregateTrainingList(rows)
+	return aggregateTrainingLogs(rows)
 }
 
-func (tp trainingPersistance) GetTrainingByKind(kind string) ([]*model.Training, error) {
+func (tp trainingPersistance) GetTrainingLogByKind(kind string) ([]*model.Training, error) {
 	conn := GetConn()
 	stmt, err := conn.Prepare(fmt.Sprintf("SELECT tl.date, tk.tag, tl.count FROM training_logs AS tl INNER JOIN training_kinds AS tk ON tl.training_kind_id = tk.training_kind_id WHERE tk.tag = ?"))
 	if err != nil {
@@ -44,10 +44,10 @@ func (tp trainingPersistance) GetTrainingByKind(kind string) ([]*model.Training,
 		return nil, err
 	}
 
-	return aggregateTrainingList(rows)
+	return aggregateTrainingLogs(rows)
 }
 
-func aggregateTrainingList(rows *sql.Rows) ([]*model.Training, error) {
+func aggregateTrainingLogs(rows *sql.Rows) ([]*model.Training, error) {
 	trainings := []*model.Training{}
 
 	var date string

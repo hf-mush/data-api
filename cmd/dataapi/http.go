@@ -48,8 +48,8 @@ func RunServer(port int64) error {
 	trainingHandler := handler.NewTrainingHandler(trainingUseCase)
 
 	g := e.Group("/v1", customLogger)
-	g.GET("/recorder/training", trainingHandler.RetrieveList)
-	g.POST("/recorder/training", trainingHandler.CreateTrainingLog)
+	g.GET("/recorder/training", trainingHandler.RetrieveLogs)
+	g.POST("/recorder/training", trainingHandler.CreateLog)
 
 	return e.Start(":" + strconv.FormatInt(port, 10))
 }

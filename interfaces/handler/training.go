@@ -1,16 +1,16 @@
 package handler
 
 import (
+	"github.com/labstack/echo"
 	"github.com/shuufujita/data-api/domain/model"
 	"github.com/shuufujita/data-api/interfaces/response"
 	"github.com/shuufujita/data-api/usecases"
-	"github.com/labstack/echo"
 )
 
 // TrainingHandler training handler
 type TrainingHandler interface {
-	RetrieveList(c echo.Context) error
-	CreateTrainingLog(c echo.Context) error
+	RetrieveLogs(c echo.Context) error
+	CreateLog(c echo.Context) error
 }
 
 type trainingHandler struct {
@@ -24,50 +24,50 @@ func NewTrainingHandler(tu usecases.TrainingUseCase) TrainingHandler {
 	}
 }
 
-// RetrieveTrainingListRequest request struct
-type RetrieveTrainingListRequest struct {
+// RetrieveLogsRequest request struct
+type RetrieveLogsRequest struct {
 	Kind string `query:"kind"`
 }
 
-// RetrieveTrainingListResponse response struct
-type RetrieveTrainingListResponse struct {
+// RetrieveLogsResponse response struct
+type RetrieveLogsResponse struct {
 	Records []*model.Training `json:"records"`
 }
 
 // RetrieveTrainingList return training list
-func (th trainingHandler) RetrieveList(c echo.Context) error {
+func (th trainingHandler) RetrieveLogs(c echo.Context) error {
 
-	request := &RetrieveTrainingListRequest{}
+	request := &RetrieveLogsRequest{}
 	if err := c.Bind(request); err != nil {
 		return response.ErrorResponse(c, "INVALID_PARAMETER", err.Error())
 	}
 
 	if request.Kind == "" {
-		trainings, err := th.trainingUseCase.GetAll()
+		trainings, err := th.trainingUseCase.GetLogAll()
 		if err != nil {
 			return response.ErrorResponse(c, "NOT_FOUND", err.Error())
 		}
-		return c.JSON(200, &RetrieveTrainingListResponse{Records: trainings})
+		return c.JSON(200, &RetrieveLogsResponse{Records: trainings})
 	}
 
-	trainings, err := th.trainingUseCase.GetByKind(request.Kind)
+	trainings, err := th.trainingUseCase.GetLogByKind(request.Kind)
 	if err != nil {
 		return response.ErrorResponse(c, "NOT_FOUND", err.Error())
 	}
-	return c.JSON(200, &RetrieveTrainingListResponse{Records: trainings})
+	return c.JSON(200, &RetrieveLogsResponse{Records: trainings})
 }
 
-// CreateTrainingLogRequest request struct
-type CreateTrainingLogRequest struct {
+// CreateLogRequest request struct
+type CreateLogRequest struct {
 	Kind  string `json:"kind"`
 	Count int    `json:"count"`
 	Date  string `json:"date"`
 }
 
 // RetrieveTrainingList return training list
-func (th trainingHandler) CreateTrainingLog(c echo.Context) error {
+func (th trainingHandler) CreateLog(c echo.Context) error {
 
-	request := &CreateTrainingLogRequest{}
+	request := &CreateLogRequest{}
 	if err := c.Bind(request); err != nil {
 		return response.ErrorResponse(c, "INVALID_PARAMETER", err.Error())
 	}
