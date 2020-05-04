@@ -1,6 +1,8 @@
 package usecases
 
 import (
+	"time"
+
 	"github.com/shuufujita/data-api/domain/model"
 	"github.com/shuufujita/data-api/domain/repository"
 )
@@ -49,20 +51,32 @@ func (tu trainingUseCase) GetKindByKindTag(kind string) (*model.TrainingKind, er
 	return trainingKind, nil
 }
 
-func (tu trainingUseCase) CreateLog(trainingKindID int64, tag string, count int) error {
-	err := tu.repository.InsertTrainingLog(trainingKindID, tag, count)
+func (tu trainingUseCase) CreateLog(trainingKindID int64, date string, count int) error {
+	_, err := parseJstWithRFC3339(date)
+	if err != nil {
+		return err
+	}
+	err = tu.repository.InsertTrainingLog(trainingKindID, date, count)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (tu trainingUseCase) UpdateLog(trainingLogID, trainingKindID int64, tag string, count int) error {
-	err := tu.repository.UpdateTrainingLog(trainingLogID, trainingKindID, tag, count)
+func (tu trainingUseCase) UpdateLog(trainingLogID, trainingKindID int64, date string, count int) error {
+	_, err := parseJstWithRFC3339(date)
+	if err != nil {
+		return err
+	}
+	err = tu.repository.UpdateTrainingLog(trainingLogID, trainingKindID, date, count)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func parseJstWithRFC3339(date string) (time.Time, error) {
+	return time.Parse(time.RFC3339, date)
 }
 
 func (tu trainingUseCase) DeleteLog(trainingLogID int64) error {
