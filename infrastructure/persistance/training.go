@@ -128,3 +128,18 @@ func (tp trainingPersistance) UpdateTrainingLog(trainingLogID, trainingKindID in
 
 	return nil
 }
+
+func (tp trainingPersistance) DeleteTrainingLog(trainingLogID int64) error {
+	conn := GetConn()
+	stmt, err := conn.Prepare("DELETE FROM training_logs WHERE training_log_id = ?")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(trainingLogID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

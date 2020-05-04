@@ -14,6 +14,7 @@ type TrainingHandler interface {
 	RetrieveLogs(c echo.Context) error
 	CreateLog(c echo.Context) error
 	UpdateLog(c echo.Context) error
+	DeleteLog(c echo.Context) error
 }
 
 type trainingHandler struct {
@@ -113,6 +114,30 @@ func (th trainingHandler) UpdateLog(c echo.Context) error {
 	date := request.Date
 	count := request.Count
 	err = th.trainingUseCase.UpdateLog(id, trainingKind.TrainingKindID, date, count)
+	if err != nil {
+		return response.ErrorResponse(c, "DB_REQUEST_ERROR", err.Error())
+	}
+
+	emptyJSON, _ := json.Marshal(map[string]interface{}{})
+	return c.JSONBlob(200, emptyJSON)
+}
+
+// DeleteLogRequest request struct
+type DeleteLogRequest struct {
+	ID int64 `query:"id"`
+}
+
+func (th trainingHandler) DeleteLog(c echo.Context) error {
+	request := &DeleteLogRequest{}
+	if err := c.Bind(request); err != nil {
+		return response.ErrorResponse(c, "INVALID_PARAMETER", err.Error())
+	}
+
+	if request.ID == 0 {
+		return response.ErrorResponse(c, "INVALID_PARAMETER", "id must be greater than or equal to 0")
+	}
+
+	err := th.trainingUseCase.DeleteLog(request.ID)
 	if err != nil {
 		return response.ErrorResponse(c, "DB_REQUEST_ERROR", err.Error())
 	}
