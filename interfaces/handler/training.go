@@ -35,7 +35,7 @@ type RetrieveLogsRequest struct {
 
 // RetrieveLogsResponse response struct
 type RetrieveLogsResponse struct {
-	Records []*model.Training `json:"records"`
+	Records []*model.TrainingLog `json:"records"`
 }
 
 func (th trainingHandler) RetrieveLogs(c echo.Context) error {
