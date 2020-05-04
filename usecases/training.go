@@ -10,9 +10,8 @@ import (
 // TrainingUseCase usecase of training
 type TrainingUseCase interface {
 	GetLogs(kind string) ([]*model.TrainingLog, error)
-	GetKindByKindTag(kind string) (*model.TrainingKind, error)
-	CreateLog(trainingKindID int64, tag string, count int) error
-	UpdateLog(trainingLogID, trainingKindID int64, tag string, count int) error
+	CreateLog(kind string, date string, count int) error
+	UpdateLog(trainingLogID int64, kind string, date string, count int) error
 	DeleteLog(trainingLogID int64) error
 }
 
@@ -43,32 +42,36 @@ func (tu trainingUseCase) GetLogs(kind string) ([]*model.TrainingLog, error) {
 	return trainingList, nil
 }
 
-func (tu trainingUseCase) GetKindByKindTag(kind string) (*model.TrainingKind, error) {
-	trainingKind, err := tu.repository.GetTrainingKindByKindTag(kind)
-	if err != nil {
-		return nil, err
-	}
-	return trainingKind, nil
-}
-
-func (tu trainingUseCase) CreateLog(trainingKindID int64, date string, count int) error {
+func (tu trainingUseCase) CreateLog(kind string, date string, count int) error {
 	_, err := parseJstWithRFC3339(date)
 	if err != nil {
 		return err
 	}
-	err = tu.repository.InsertTrainingLog(trainingKindID, date, count)
+
+	trainingKind, err := tu.repository.GetTrainingKindByKindTag(kind)
+	if err != nil {
+		return err
+	}
+
+	err = tu.repository.InsertTrainingLog(trainingKind.TrainingKindID, date, count)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (tu trainingUseCase) UpdateLog(trainingLogID, trainingKindID int64, date string, count int) error {
+func (tu trainingUseCase) UpdateLog(trainingLogID int64, kind string, date string, count int) error {
 	_, err := parseJstWithRFC3339(date)
 	if err != nil {
 		return err
 	}
-	err = tu.repository.UpdateTrainingLog(trainingLogID, trainingKindID, date, count)
+
+	trainingKind, err := tu.repository.GetTrainingKindByKindTag(kind)
+	if err != nil {
+		return err
+	}
+
+	err = tu.repository.UpdateTrainingLog(trainingLogID, trainingKind.TrainingKindID, date, count)
 	if err != nil {
 		return err
 	}
