@@ -31,10 +31,11 @@ paths:
             enum:
               - "pushup"
               - "squat"
+              - "situp"
           description: training kind tag string
       responses:
         "200":
-          $ref: "#/components/responses/TrainingList"
+          $ref: "#/components/responses/TrainingLogs"
     post:
       summary: Create Training Record
       tags:
@@ -52,6 +53,12 @@ paths:
       summary: Update Training Record
       tags:
         - Training
+      requestBody:
+        description: create training log info
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TrainingLog"
       responses:
         "200":
           $ref: "#/components/responses/Updated"
@@ -59,6 +66,13 @@ paths:
       summary: Remove Training Record
       tags:
         - Training
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: integer
+          description: |
+            training log ID
       responses:
         "200":
           $ref: "#/components/responses/Deleted"
@@ -83,7 +97,7 @@ components:
         application/json:
           schema:
             type: object
-    TrainingList:
+    TrainingLogs:
       description: OK
       content:
         application/json:
@@ -95,7 +109,7 @@ components:
               records:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Training"
+                  $ref: "#/components/schemas/TrainingLog"
   schemas:
     Training:
       type: object
@@ -107,6 +121,7 @@ components:
           enum:
             - "pushup"
             - "squat"
+            - "situp"
           example: "pushup"
         date:
           type: string
@@ -118,9 +133,44 @@ components:
           type: integer
           description: |
             training count
-          format: int64
+          format: int
           example: 40
       required:
+        - kind
+        - date
+        - count
+    TrainingLog:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: |
+            training log ID
+          format: int64
+          example: 3
+        kind:
+          type: string
+          description: |
+            training kind
+          enum:
+            - "pushup"
+            - "squat"
+            - "situp"
+          example: "pushup"
+        date:
+          type: string
+          description: |
+            training date
+          format: date-time
+          example: "2020-01-01T00:00:00+09:00"
+        count:
+          type: integer
+          description: |
+            training count
+          format: int
+          example: 40
+      required:
+        - id
         - kind
         - date
         - count
