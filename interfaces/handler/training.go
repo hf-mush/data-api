@@ -66,14 +66,9 @@ func (th trainingHandler) CreateLog(c echo.Context) error {
 	}
 
 	kind := request.Kind
-	trainingKind, err := th.trainingUseCase.GetKindByKindTag(kind)
-	if err != nil {
-		return response.ErrorResponse(c, "DB_NOT_FOUND", err.Error())
-	}
-
 	date := request.Date
 	count := request.Count
-	err = th.trainingUseCase.CreateLog(trainingKind.TrainingKindID, date, count)
+	err := th.trainingUseCase.CreateLog(kind, date, count)
 	if err != nil {
 		return response.ErrorResponse(c, "DB_REQUEST_ERROR", err.Error())
 	}
@@ -96,15 +91,10 @@ func (th trainingHandler) UpdateLog(c echo.Context) error {
 	}
 
 	kind := request.Kind
-	trainingKind, err := th.trainingUseCase.GetKindByKindTag(kind)
-	if err != nil {
-		return response.ErrorResponse(c, "DB_NOT_FOUND", err.Error())
-	}
-
 	id := request.ID
 	date := request.Date
 	count := request.Count
-	err = th.trainingUseCase.UpdateLog(id, trainingKind.TrainingKindID, date, count)
+	err := th.trainingUseCase.UpdateLog(id, kind, date, count)
 	if err != nil {
 		return response.ErrorResponse(c, "DB_REQUEST_ERROR", err.Error())
 	}
