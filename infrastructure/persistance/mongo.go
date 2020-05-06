@@ -21,7 +21,7 @@ func ConnectMongoDB() (*mgo.Session, error) {
 		Database:  os.Getenv("MONGO_DBNAME"),
 		Username:  os.Getenv("MONGO_USER"),
 		Password:  os.Getenv("MONGO_PASSWORD"),
-		Source:    "admin",
+		Source:    os.Getenv("MONGO_DBNAME"),
 		Mechanism: "SCRAM-SHA-1",
 	}
 	ses, err := mgo.DialWithInfo(dialInfo)
