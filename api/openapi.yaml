@@ -70,7 +70,7 @@ paths:
         - in: query
           name: id
           schema:
-            type: integer
+            type: string
           description: |
             training log ID
       responses:
@@ -143,11 +143,10 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
           description: |
             training log ID
-          format: int64
-          example: 3
+          example: "395evd0130fadf0h44faf"
         kind:
           type: string
           description: |
