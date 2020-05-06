@@ -31,6 +31,7 @@ func NewTrainingHandler(tu usecases.TrainingUseCase) TrainingHandler {
 // RetrieveLogsRequest request struct
 type RetrieveLogsRequest struct {
 	Kind string `query:"kind"`
+	Page int    `query:"page"`
 }
 
 // RetrieveLogsResponse response struct
@@ -44,7 +45,7 @@ func (th trainingHandler) RetrieveLogs(c echo.Context) error {
 		return response.ErrorResponse(c, "INVALID_PARAMETER", err.Error())
 	}
 
-	trainings, err := th.trainingUseCase.GetLogs(request.Kind)
+	trainings, err := th.trainingUseCase.GetLogs(request.Kind, request.Page)
 	if err != nil {
 		return response.ErrorResponse(c, "DB_NOT_FOUND", err.Error())
 	}

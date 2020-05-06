@@ -33,6 +33,11 @@ paths:
               - "squat"
               - "situp"
           description: training kind tag string
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: page number
       responses:
         "200":
           $ref: "#/components/responses/TrainingLogs"

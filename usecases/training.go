@@ -9,7 +9,7 @@ import (
 
 // TrainingUseCase usecase of training
 type TrainingUseCase interface {
-	GetLogs(kind string) ([]*model.TrainingLog, error)
+	GetLogs(kind string, page int) ([]*model.TrainingLog, error)
 	CreateLog(kind string, date string, count int) error
 	UpdateLog(objectID string, kind string, date string, count int) error
 	DeleteLog(objectID string) error
@@ -26,16 +26,16 @@ func NewTrainingUseCase(tr repository.TrainingRepository) TrainingUseCase {
 	}
 }
 
-func (tu trainingUseCase) GetLogs(kind string) ([]*model.TrainingLog, error) {
+func (tu trainingUseCase) GetLogs(kind string, page int) ([]*model.TrainingLog, error) {
 	if kind != "" {
-		trainingList, err := tu.repository.GetTrainingLogByKind(kind)
+		trainingList, err := tu.repository.GetTrainingLogByKind(page, kind)
 		if err != nil {
 			return nil, err
 		}
 		return trainingList, nil
 	}
 
-	trainingList, err := tu.repository.GetTrainingLogAll()
+	trainingList, err := tu.repository.GetTrainingLogAll(page)
 	if err != nil {
 		return nil, err
 	}
