@@ -6,8 +6,7 @@ import "github.com/shuufujita/data-api/domain/model"
 type TrainingRepository interface {
 	GetTrainingLogAll() ([]*model.TrainingLog, error)
 	GetTrainingLogByKind(kind string) ([]*model.TrainingLog, error)
-	GetTrainingKindByKindTag(kind string) (*model.TrainingKind, error)
-	InsertTrainingLog(trainingKindID int64, date string, count int) error
-	UpdateTrainingLog(trainingLogID, trainingKindID int64, date string, count int) error
-	DeleteTrainingLog(trainingLogID int64) error
+	InsertTrainingLog(kind string, date string, count int) error
+	UpdateTrainingLog(objectID string, kind string, date string, count int) error
+	DeleteTrainingLog(objectID string) error
 }

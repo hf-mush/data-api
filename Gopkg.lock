@@ -18,14 +18,6 @@
   version = "v3.2.0"
 
 [[projects]]
-  digest = "1:a3af33fd30536d9c5a7b6ad542390919e57c1125097a194c7b3d9904109a0611"
-  name = "github.com/go-sql-driver/mysql"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "17ef3dd9d98b69acec3e85878995ada9533a9370"
-  version = "v1.5.0"
-
-[[projects]]
   digest = "1:ecd9aa82687cf31d1585d4ac61d0ba180e42e8a6182b85bd785fcca8dfeefc1b"
   name = "github.com/joho/godotenv"
   packages = ["."]
@@ -106,15 +98,18 @@
   name = "golang.org/x/net"
   packages = ["idna"]
   pruneopts = "UT"
-  revision = "ff2c4b7c35a07b0c1e90ce72aa7bfe41bb66a3cb"
+  revision = "1ed23360d12c354a52f93c8dacc79ddd46516428"
 
 [[projects]]
   branch = "master"
-  digest = "1:c1f8d9eb178c49f24c90e608f1d2c55d184a789f0b1abe98dfb6749fe9e43649"
+  digest = "1:8cab10971112233c82c83683a517378038eba1c20e71b29c592b73fa212437b3"
   name = "golang.org/x/sys"
-  packages = ["unix"]
+  packages = [
+    "internal/unsafeheader",
+    "unix",
+  ]
   pruneopts = "UT"
-  revision = "1f5687305801d4db70d30c51ccc82bf644f9e4d6"
+  revision = "bc7a7d42d5c30f4d0fe808715c002826ce2c624e"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -141,15 +136,30 @@
   revision = "342b2e1fbaa52c93f31447ad2c6abc048c63e475"
   version = "v0.3.2"
 
+[[projects]]
+  branch = "v2"
+  digest = "1:4af24de1cba937fb5ef082e8860a47fd46282e6863c01930359368ee121e3114"
+  name = "gopkg.in/mgo.v2"
+  packages = [
+    ".",
+    "bson",
+    "internal/json",
+    "internal/sasl",
+    "internal/scram",
+  ]
+  pruneopts = "UT"
+  revision = "a6b53ec6cb22a3699387a57a161566f9402ee85b"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
     "github.com/comail/colog",
-    "github.com/go-sql-driver/mysql",
     "github.com/joho/godotenv",
     "github.com/labstack/echo",
     "github.com/labstack/echo/middleware",
+    "gopkg.in/mgo.v2",
+    "gopkg.in/mgo.v2/bson",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

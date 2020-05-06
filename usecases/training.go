@@ -11,8 +11,8 @@ import (
 type TrainingUseCase interface {
 	GetLogs(kind string) ([]*model.TrainingLog, error)
 	CreateLog(kind string, date string, count int) error
-	UpdateLog(trainingLogID int64, kind string, date string, count int) error
-	DeleteLog(trainingLogID int64) error
+	UpdateLog(objectID string, kind string, date string, count int) error
+	DeleteLog(objectID string) error
 }
 
 type trainingUseCase struct {
@@ -48,30 +48,20 @@ func (tu trainingUseCase) CreateLog(kind string, date string, count int) error {
 		return err
 	}
 
-	trainingKind, err := tu.repository.GetTrainingKindByKindTag(kind)
-	if err != nil {
-		return err
-	}
-
-	err = tu.repository.InsertTrainingLog(trainingKind.TrainingKindID, date, count)
+	err = tu.repository.InsertTrainingLog(kind, date, count)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (tu trainingUseCase) UpdateLog(trainingLogID int64, kind string, date string, count int) error {
+func (tu trainingUseCase) UpdateLog(objectID string, kind string, date string, count int) error {
 	_, err := parseJstWithRFC3339(date)
 	if err != nil {
 		return err
 	}
 
-	trainingKind, err := tu.repository.GetTrainingKindByKindTag(kind)
-	if err != nil {
-		return err
-	}
-
-	err = tu.repository.UpdateTrainingLog(trainingLogID, trainingKind.TrainingKindID, date, count)
+	err = tu.repository.UpdateTrainingLog(objectID, kind, date, count)
 	if err != nil {
 		return err
 	}
@@ -82,8 +72,8 @@ func parseJstWithRFC3339(date string) (time.Time, error) {
 	return time.Parse(time.RFC3339, date)
 }
 
-func (tu trainingUseCase) DeleteLog(trainingLogID int64) error {
-	err := tu.repository.DeleteTrainingLog(trainingLogID)
+func (tu trainingUseCase) DeleteLog(objectID string) error {
+	err := tu.repository.DeleteTrainingLog(objectID)
 	if err != nil {
 		return err
 	}
