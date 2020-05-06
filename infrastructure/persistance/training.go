@@ -15,7 +15,9 @@ func NewTrainingPersistance() repository.TrainingRepository {
 	return &trainingPersistance{}
 }
 
-func (tp trainingPersistance) GetTrainingLogAll() ([]*model.TrainingLog, error) {
+var offsetSize = 50
+
+func (tp trainingPersistance) GetTrainingLogAll(page int) ([]*model.TrainingLog, error) {
 	sess, err := ConnectMongoDB()
 	if err != nil {
 		return nil, err
@@ -26,7 +28,8 @@ func (tp trainingPersistance) GetTrainingLogAll() ([]*model.TrainingLog, error) 
 	query := bson.M{}
 	logs := []*model.MgoTrainingLog{}
 
-	err = col.Find(query).Skip(0).Limit(50).All(&logs)
+	skip := getSkipCount(page)
+	err = col.Find(query).Skip(skip).Limit(offsetSize).All(&logs)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +37,7 @@ func (tp trainingPersistance) GetTrainingLogAll() ([]*model.TrainingLog, error) 
 	return aggregateTrainingLogs(logs)
 }
 
-func (tp trainingPersistance) GetTrainingLogByKind(kind string) ([]*model.TrainingLog, error) {
+func (tp trainingPersistance) GetTrainingLogByKind(page int, kind string) ([]*model.TrainingLog, error) {
 	sess, err := ConnectMongoDB()
 	if err != nil {
 		return nil, err
@@ -47,12 +50,20 @@ func (tp trainingPersistance) GetTrainingLogByKind(kind string) ([]*model.Traini
 	}
 	logs := []*model.MgoTrainingLog{}
 
-	err = col.Find(query).Skip(0).Limit(50).All(&logs)
+	skip := getSkipCount(page)
+	err = col.Find(query).Skip(skip).Limit(offsetSize).All(&logs)
 	if err != nil {
 		return nil, err
 	}
 
 	return aggregateTrainingLogs(logs)
+}
+
+func getSkipCount(page int) int {
+	if page <= 0 {
+		return 0
+	}
+	return (page - 1) * offsetSize
 }
 
 func aggregateTrainingLogs(rows []*model.MgoTrainingLog) ([]*model.TrainingLog, error) {
