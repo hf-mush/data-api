@@ -78,7 +78,7 @@ func (th trainingHandler) CreateLog(c echo.Context) error {
 
 // UpdateLogRequest request struct
 type UpdateLogRequest struct {
-	ID    int64  `json:"id"`
+	ID    string `json:"id"`
 	Kind  string `json:"kind"`
 	Count int    `json:"count"`
 	Date  string `json:"date"`
@@ -105,7 +105,7 @@ func (th trainingHandler) UpdateLog(c echo.Context) error {
 
 // DeleteLogRequest request struct
 type DeleteLogRequest struct {
-	ID int64 `query:"id"`
+	ID string `query:"id"`
 }
 
 func (th trainingHandler) DeleteLog(c echo.Context) error {
@@ -114,8 +114,8 @@ func (th trainingHandler) DeleteLog(c echo.Context) error {
 		return response.ErrorResponse(c, "INVALID_PARAMETER", err.Error())
 	}
 
-	if request.ID == 0 {
-		return response.ErrorResponse(c, "INVALID_PARAMETER", "id must be greater than or equal to 0")
+	if request.ID == "" {
+		return response.ErrorResponse(c, "INVALID_PARAMETER", "invalid id")
 	}
 
 	err := th.trainingUseCase.DeleteLog(request.ID)

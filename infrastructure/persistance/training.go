@@ -1,12 +1,11 @@
 package persistance
 
 import (
-	"database/sql"
-	"fmt"
-	"time"
+	"os"
 
 	"github.com/shuufujita/data-api/domain/model"
 	"github.com/shuufujita/data-api/domain/repository"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type trainingPersistance struct{}
@@ -17,130 +16,107 @@ func NewTrainingPersistance() repository.TrainingRepository {
 }
 
 func (tp trainingPersistance) GetTrainingLogAll() ([]*model.TrainingLog, error) {
-	conn := GetConn()
-	stmt, err := conn.Prepare(fmt.Sprintf("SELECT tl.training_log_id, tl.date, tk.tag, tl.count FROM training_logs AS tl INNER JOIN training_kinds AS tk ON tl.training_kind_id = tk.training_kind_id"))
+	sess, err := ConnectMongoDB()
 	if err != nil {
 		return nil, err
 	}
-	defer stmt.Close()
+	defer CloseMongoDB(sess)
 
-	rows, err := stmt.Query()
+	col := sess.DB(os.Getenv("MONGO_DBNAME")).C("training_logs")
+	query := bson.M{}
+	logs := []*model.MgoTrainingLog{}
+
+	err = col.Find(query).Skip(0).Limit(50).All(&logs)
 	if err != nil {
 		return nil, err
 	}
 
-	return aggregateTrainingLogs(rows)
+	return aggregateTrainingLogs(logs)
 }
 
 func (tp trainingPersistance) GetTrainingLogByKind(kind string) ([]*model.TrainingLog, error) {
-	conn := GetConn()
-	stmt, err := conn.Prepare(fmt.Sprintf("SELECT tl.training_log_id, tl.date, tk.tag, tl.count FROM training_logs AS tl INNER JOIN training_kinds AS tk ON tl.training_kind_id = tk.training_kind_id WHERE tk.tag = ?"))
+	sess, err := ConnectMongoDB()
 	if err != nil {
 		return nil, err
 	}
-	defer stmt.Close()
+	defer CloseMongoDB(sess)
 
-	rows, err := stmt.Query(kind)
+	col := sess.DB(os.Getenv("MONGO_DBNAME")).C("training_logs")
+	query := bson.M{
+		"kind": kind,
+	}
+	logs := []*model.MgoTrainingLog{}
+
+	err = col.Find(query).Skip(0).Limit(50).All(&logs)
 	if err != nil {
 		return nil, err
 	}
 
-	return aggregateTrainingLogs(rows)
+	return aggregateTrainingLogs(logs)
 }
 
-func aggregateTrainingLogs(rows *sql.Rows) ([]*model.TrainingLog, error) {
+func aggregateTrainingLogs(rows []*model.MgoTrainingLog) ([]*model.TrainingLog, error) {
 	trainings := []*model.TrainingLog{}
-
-	var trainingLogID int64
-	var date time.Time
-	var tag string
-	var count int
-
-	for rows.Next() {
-		err := rows.Scan(&trainingLogID, &date, &tag, &count)
-		if err != nil {
-			panic(err)
+	for i := 0; i < len(rows); i++ {
+		training := &model.TrainingLog{
+			ID:    rows[i].ID.Hex(),
+			Date:  rows[i].Date,
+			Count: rows[i].Count,
+			Kind:  rows[i].Kind,
 		}
-		trainging := &model.TrainingLog{
-			ID:    trainingLogID,
-			Date:  convertTimeToJstStr(date),
-			Count: count,
-			Kind:  tag,
-		}
-		trainings = append(trainings, trainging)
+		trainings = append(trainings, training)
 	}
-	defer rows.Close()
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
 	return trainings, nil
 }
 
-func (tp trainingPersistance) GetTrainingKindByKindTag(kind string) (*model.TrainingKind, error) {
-	conn := GetConn()
-
-	stmt, err := conn.Prepare("SELECT * FROM training_kinds WHERE tag = ?")
+func (tp trainingPersistance) InsertTrainingLog(kind string, date string, count int) error {
+	sess, err := ConnectMongoDB()
 	if err != nil {
-		return nil, err
+		return err
+	}
+	defer CloseMongoDB(sess)
+
+	col := sess.DB(os.Getenv("MONGO_DBNAME")).C("training_logs")
+	item := &model.MgoTrainingLog{
+		Kind:  kind,
+		Date:  date,
+		Count: count,
 	}
 
-	var trainingKindID int64
-	var tag string
-	var name string
-	if err := stmt.QueryRow(kind).Scan(&trainingKindID, &tag, &name); err != nil {
-		return nil, err
-	}
-
-	return &model.TrainingKind{
-		TrainingKindID: trainingKindID,
-		Tag:            tag,
-		Name:           name,
-	}, nil
+	return col.Insert(item)
 }
 
-func (tp trainingPersistance) InsertTrainingLog(trainingKindID int64, date string, count int) error {
-	conn := GetConn()
-	stmt, err := conn.Prepare("INSERT INTO training_logs (training_kind_id, date, count) VALUES (?, ?, ?)")
+func (tp trainingPersistance) UpdateTrainingLog(objectID string, kind string, date string, count int) error {
+	sess, err := ConnectMongoDB()
 	if err != nil {
 		return err
 	}
+	defer CloseMongoDB(sess)
 
-	_, err = stmt.Exec(trainingKindID, date, count)
-	if err != nil {
-		return err
+	col := sess.DB(os.Getenv("MONGO_DBNAME")).C("training_logs")
+	query := bson.M{
+		"_id": bson.ObjectIdHex(objectID),
+	}
+	update := &model.MgoTrainingLog{
+		Kind:  kind,
+		Date:  date,
+		Count: count,
 	}
 
-	return nil
+	return col.Update(query, update)
 }
 
-func (tp trainingPersistance) UpdateTrainingLog(trainingLogID, trainingKindID int64, date string, count int) error {
-	conn := GetConn()
-	stmt, err := conn.Prepare("UPDATE training_logs SET training_kind_id = ?, date = ?, count = ? WHERE training_log_id = ?")
+func (tp trainingPersistance) DeleteTrainingLog(objectID string) error {
+	sess, err := ConnectMongoDB()
 	if err != nil {
 		return err
 	}
+	defer CloseMongoDB(sess)
 
-	_, err = stmt.Exec(trainingKindID, date, count, trainingLogID)
-	if err != nil {
-		return err
+	col := sess.DB(os.Getenv("MONGO_DBNAME")).C("training_logs")
+	query := bson.M{
+		"_id": bson.ObjectIdHex(objectID),
 	}
 
-	return nil
-}
-
-func (tp trainingPersistance) DeleteTrainingLog(trainingLogID int64) error {
-	conn := GetConn()
-	stmt, err := conn.Prepare("DELETE FROM training_logs WHERE training_log_id = ?")
-	if err != nil {
-		return err
-	}
-
-	_, err = stmt.Exec(trainingLogID)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return col.Remove(query)
 }

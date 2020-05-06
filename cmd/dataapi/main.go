@@ -2,15 +2,12 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"strconv"
 	"time"
 
 	"github.com/comail/colog"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/shuufujita/data-api/infrastructure/persistance"
 )
 
 var exitCode = 0
@@ -41,16 +38,6 @@ func main() {
 	}
 
 	flag.Int64Var(&port, "port", port, "Listen port of HTTP Server")
-
-	// MySQLコネクションプール初期化
-	mp, err := persistance.ConnectDB()
-	if err != nil {
-		log.Println(fmt.Sprintf("%v: [%v] %v", "error", "mysql", err.Error()))
-		gofmtMain()
-		os.Exit(exitCode)
-	}
-
-	defer mp.Close()
 
 	err = RunServer(port)
 	if err != nil {
