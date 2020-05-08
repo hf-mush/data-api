@@ -20,6 +20,11 @@ go install github.com/shuufujita/data-api/cmd/dataapi
 cd src/github.com/shuufujita/data-api && dep ensure
 ```
 
+## Generate RSA Keys
+
+* create private key : `openssl genrsa 1024 > private-key.pem`
+* create public key : `openssl rsa -in private-key.pem -pubout -out public-key.pem`
+
 ## Usage
 
 * launch api : `bin/dataapi`
