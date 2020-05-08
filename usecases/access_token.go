@@ -9,12 +9,13 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/shuufujita/data-api/domain/model"
 	"github.com/shuufujita/data-api/domain/repository"
 )
 
 // AccessTokenUseCase usecase of access_token
 type AccessTokenUseCase interface {
-	Generate(userID string) (AccessToken, error)
+	Generate(userID string) (model.AccessToken, error)
 	Parse(tokenString string) (*jwt.Token, error)
 	Validate(token *jwt.Token) bool
 	GetUserID(token *jwt.Token) string
@@ -32,40 +33,28 @@ func NewAccessTokenUseCase(atr repository.AccessTokenRepository) AccessTokenUseC
 	}
 }
 
-// AccessToken access_token struct
-type AccessToken struct {
-	AccessToken         string `json:"access_token"`
-	AccessTokenExpires  string `json:"access_token_expires"`
-	RefreshToken        string `json:"refresh_token"`
-	RefreshTokenExpires string `json:"refresh_token_expires"`
-}
-
-// Generate return jwt token
-func (at accessTokenUseCase) Generate(userID string) (AccessToken, error) {
-	// アクセストークンの有効期限を取得する
+func (at accessTokenUseCase) Generate(userID string) (model.AccessToken, error) {
 	acExp, err := strconv.ParseInt(os.Getenv("ACCESS_TOKEN_EXPIRATION_MINUTES"), 10, 64)
 	if err != nil {
 		log.Println(fmt.Sprintf("%v: [%v] %v", "error", userID, err.Error()))
 	}
-	// アクセストークンを生成する
 	accessTokenString, err := generateTokenString(userID, "access", acExp)
 	if err != nil {
 		log.Println(fmt.Sprintf("%v: [%v] %v", "error", userID, err.Error()))
-		return AccessToken{}, err
+		return model.AccessToken{}, err
 	}
-	// リフレッシュトークンの有効期限を取得する
+
 	rfExp, err := strconv.ParseInt(os.Getenv("REFRESH_TOKEN_EXPIRATION_MINUTES"), 10, 64)
 	if err != nil {
 		log.Println(fmt.Sprintf("%v: [%v] %v", "error", userID, err.Error()))
 	}
-	// リフレッシュトークンを生成する
 	refreshTokenString, err := generateTokenString(userID, "refresh", rfExp)
 	if err != nil {
 		log.Println(fmt.Sprintf("%v: [%v] %v", "error", userID, err.Error()))
-		return AccessToken{}, err
+		return model.AccessToken{}, err
 	}
-	// レスポンスを生成する
-	tokens := AccessToken{
+
+	tokens := model.AccessToken{
 		AccessToken:         accessTokenString,
 		AccessTokenExpires:  time.Now().Add(time.Minute * time.Duration(acExp)).Format(time.RFC3339),
 		RefreshToken:        refreshTokenString,
@@ -75,7 +64,6 @@ func (at accessTokenUseCase) Generate(userID string) (AccessToken, error) {
 	return tokens, nil
 }
 
-// Parse token文字列をparseする
 func (at accessTokenUseCase) Parse(tokenString string) (*jwt.Token, error) {
 	return jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		keyData, err := ioutil.ReadFile(os.Getenv("PUBLIC_KEY_PATH"))
@@ -93,7 +81,6 @@ func (at accessTokenUseCase) Parse(tokenString string) (*jwt.Token, error) {
 }
 
 func (at accessTokenUseCase) Validate(token *jwt.Token) bool {
-	// 署名と有効期限をチェックする(exp が jwt ライブラリ内での型が float64 になっているので int64 に変換しなおして比較)
 	return token.Valid && (int64(token.Claims.(jwt.MapClaims)["exp"].(float64)) > time.Now().Unix())
 }
 
@@ -106,9 +93,8 @@ func (at accessTokenUseCase) GetUserInfo(userID string) (string, error) {
 }
 
 func generateTokenString(userID string, tokenType string, expire int64) (string, error) {
-	acToken := jwt.New(jwt.SigningMethodRS256)
-	// claimsに値を設定する
-	claims := acToken.Claims.(jwt.MapClaims)
+	jwtToken := jwt.New(jwt.SigningMethodRS256)
+	claims := jwtToken.Claims.(jwt.MapClaims)
 	claims["sub"] = userID
 	claims["exp"] = time.Now().Add(time.Minute * time.Duration(expire)).Unix()
 	claims["iss"] = "DATA-API"
@@ -124,5 +110,5 @@ func generateTokenString(userID string, tokenType string, expire int64) (string,
 		log.Println(fmt.Sprintf("%v: [%v] %v", "error", userID, err.Error()))
 		return "", err
 	}
-	return acToken.SignedString(key)
+	return jwtToken.SignedString(key)
 }
