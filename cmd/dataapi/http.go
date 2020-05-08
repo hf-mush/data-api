@@ -47,7 +47,12 @@ func RunServer(port int64) error {
 	trainingUseCase := usecases.NewTrainingUseCase(trainingRepository)
 	trainingHandler := handler.NewTrainingHandler(trainingUseCase)
 
+	accessTokenRepository := persistance.NewAccessTokenPersistance()
+	accessTokenUseCase := usecases.NewAccessTokenUseCase(accessTokenRepository)
+	accessTokenHandler := handler.NewAuthenticationHandler(accessTokenUseCase)
+
 	g := e.Group("/v1", customLogger)
+	g.Use(accessTokenHandler.Authentication)
 	g.GET("/recorder/training", trainingHandler.RetrieveLogs)
 	g.POST("/recorder/training", trainingHandler.CreateLog)
 	g.PUT("/recorder/training", trainingHandler.UpdateLog)

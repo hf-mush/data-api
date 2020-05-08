@@ -2,12 +2,14 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
 	"time"
 
 	"github.com/comail/colog"
+	"github.com/shuufujita/data-api/infrastructure/persistance"
 )
 
 var exitCode = 0
@@ -30,6 +32,15 @@ func init() {
 }
 
 func main() {
+	// connection pool of redis
+	rcp, err := persistance.GetRedisPool()
+	if err != nil {
+		log.Println(fmt.Sprintf("%v: [%v] %v", "error", "redis", err.Error()))
+		gofmtMain()
+		os.Exit(exitCode)
+	}
+	defer rcp.Close()
+
 	port, err := strconv.ParseInt(os.Getenv("API_PORT"), 10, 64)
 	if err != nil {
 		log.Println("error: [port] " + err.Error())
