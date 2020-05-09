@@ -28,3 +28,5 @@ cd src/github.com/shuufujita/data-api && dep ensure
 ## Usage
 
 * launch api : `bin/dataapi`
+	* specified .env path : `DOTENV_PATH=/path/to/.env bin/dataapi`
+* test api : `DOTENV_PATH=/path/to/.env go test -v -count=1 github.com/shuufujita/data-api/...`
