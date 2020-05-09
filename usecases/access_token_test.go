@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
+	"github.com/stretchr/testify/assert"
 )
 
 func before() error {
@@ -99,10 +100,8 @@ func TestValidateToken(t *testing.T) {
 		t.Fatalf("%v", "token parse error. "+err.Error())
 	}
 
-	res := atu.Validate(jwtToken)
-	if res == false {
-		t.Fatalf("%v", "validate failed")
-	}
+	valid := atu.Validate(jwtToken)
+	assert.True(t, valid)
 }
 
 func TestGetUserID(t *testing.T) {
@@ -128,13 +127,9 @@ func TestGetUserID(t *testing.T) {
 		t.Fatalf("%v", "token parse error. "+err.Error())
 	}
 
-	res := atu.Validate(jwtToken)
-	if res == false {
-		t.Fatalf("%v", "validate failed")
-	}
+	valid := atu.Validate(jwtToken)
+	assert.True(t, valid)
 
-	userID := atu.GetUserID(jwtToken)
-	if userID == "" {
-		t.Fatalf("%v", "userID is empty")
-	}
+	tokenUserID := atu.GetUserID(jwtToken)
+	assert.Equal(t, tokenUserID, userID)
 }
