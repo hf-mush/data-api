@@ -20,6 +20,7 @@ type AccessTokenUseCase interface {
 	Validate(token *jwt.Token) bool
 	GetUserID(token *jwt.Token) string
 	GetUserInfo(userID string) (string, error)
+	SaveUserInfo(userID string, data interface{}) error
 }
 
 type accessTokenUseCase struct {
@@ -136,4 +137,8 @@ func (at accessTokenUseCase) GetUserID(token *jwt.Token) string {
 
 func (at accessTokenUseCase) GetUserInfo(userID string) (string, error) {
 	return at.repository.GetUserInfo(userID)
+}
+
+func (at accessTokenUseCase) SaveUserInfo(userID string, data interface{}) error {
+	return at.repository.SetUserInfo(userID, data)
 }
