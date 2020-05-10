@@ -1,6 +1,9 @@
 package persistance
 
 import (
+	"os"
+	"strconv"
+
 	"github.com/shuufujita/data-api/domain/repository"
 )
 
@@ -16,5 +19,9 @@ func (atp accessTokenPersistance) GetUserInfo(userID string) (string, error) {
 }
 
 func (atp accessTokenPersistance) SetUserInfo(userID string, data interface{}) error {
-	return RedisSetJSON("USER:"+userID+":user_info", data)
+	ttl, err := strconv.Atoi(os.Getenv("USER_INFO_CACHE_SECONDS"))
+	if err != nil {
+		return err
+	}
+	return RedisSetJSON("USER:"+userID+":user_info", data, ttl)
 }
